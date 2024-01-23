@@ -9,10 +9,16 @@ let infoFiles = function (file) {
         if (error) {
           return console.log(error);
         }
-        dat.push(file.name.split('.').slice(0, -1).join('.'));
-        dat.push(path.extname(file.name).slice(1));
-        dat.push((stats.size / 1024).toFixed(3) + 'Kb');
-        console.log(dat.join(' - '));
+        if (file.name.includes('.')) {
+          dat.push(file.name.split('.').slice(0, -1).join('.'));
+          dat.push(path.extname(file.name).slice(1));
+          dat.push((stats.size / 1024).toFixed(3) + 'Kb');
+          console.log(dat.join(' - '));
+        } else {
+          dat.push(file.name);
+          dat.push((stats.size / 1024).toFixed(3) + 'Kb');
+          console.log(dat.join(' - '));
+        }
       },
     );
   }
