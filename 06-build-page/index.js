@@ -112,24 +112,28 @@ function createTemplate() {
           { withFileTypes: true },
           function (error, files) {
             if (error) throw error;
-
-            files.forEach(function (file) {
-              fs.readFile(
-                `${folderPath}\\${file.name}`,
-                'utf8',
-                function (error, dataFile) {
-                  if (error) throw error;
-                  let tagName = `{{${file.name.split('.')[0]}}}`;
-                  data = data.replace(tagName, dataFile);
-                  fs.writeFile(
-                    `${pathCopy}\\index.html`,
-                    data,
-                    function (error) {
-                      if (error) console.log(error);
-                    },
-                  );
-                },
-              );
+            let readNewFile = files.map(function (file) {
+              return new Promise(function (resolve, reject) {
+                fs.readFile(
+                  `${folderPath}\\${file.name}`,
+                  'utf8',
+                  function (error, dataFile) {
+                    if (error) reject(error);
+                    let tagName = `{{${file.name.split('.')[0]}}}`;
+                    data = data.replace(
+                      new RegExp(`\\${tagName}`, 'g'),
+                      dataFile,
+                    );
+                    resolve();
+                  },
+                );
+              });
+            });
+            Promise.all(readNewFile).then(() => {
+              data = data.replace(/\{\{.*?\}\}/g, '');
+              fs.writeFile(`${pathCopy}\\index.html`, data, function (error) {
+                if (error) console.log(error);
+              });
             });
           },
         );
